@@ -63,10 +63,7 @@ Resources:
             def lambda_handler(event, context):
                 # Use the filter() method of the instances collection to retrieve
                 # all running EC2 instances.
-                filters = [{
-                        'Name': 'tag:AutoOff',
-                        'Values': ['True']
-                    },
+                filters = [
                     {
                         'Name': 'instance-state-name', 
                         'Values': ['running']
@@ -86,17 +83,17 @@ Resources:
                 if len(RunningInstances) > 0:
                     #perform the shutdown
                     shuttingDown = ec2.instances.filter(InstanceIds=RunningInstances).stop()
-                    print shuttingDown
+                    print(shuttingDown)
                 else:
-                    print "Nothing to see here"
-      Runtime: python2.7
+                    print("Nothing to see here")
+      Runtime: python3.9
 
   StopEC2InstanceByTagSchedule:
     Type: AWS::Events::Rule
     Properties:
       Name: StopEC2InstanceByTagSchedule
       Description: "Run Lambda Function LambdaStopEC2ByTag by schedule to stop EC2 instances"
-      ScheduleExpression: "cron(0 23 * * ? *)"
+      ScheduleExpression: "cron(30 20,21,22,23 * * ? *)"
       State: "ENABLED"
       Targets:
         - Arn: !GetAtt LambdaStopEC2ByTag.Arn
@@ -109,4 +106,4 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt StopEC2InstanceByTagSchedule.Arn
-        
+       
